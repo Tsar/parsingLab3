@@ -3,49 +3,41 @@ grammar Prefix;
 @header {
 import java.util.Set;
 import java.util.HashSet;
-import java.io.PrintWriter;
 }
 
 @members {
-PrintWriter out;
-String code;
+String code, codeBeginning;
 int codeOffset;
 boolean newLine;
 Set<String> varNames;
 
-void init() {
-	try{
-		out = new PrintWriter("output.cpp");
-		out.print("#include <iostream>\n\n");
-		out.print("int main() {\n");
-	} catch (Exception e) {
-	}
-	codeOffset = 1;
+private void init() {
+	codeBeginning = "#include <iostream>\n\nint main() {\n";
 	code = "";
+	codeOffset = 1;
 	newLine = true;
 	varNames = new HashSet<String>();
 }
 
-void deinit() {
+private void deinit() {
 	if (!varNames.isEmpty()) {
-		out.print("    int ");
+		codeBeginning += "    int ";
 		boolean firstVar = true;
 		for (String varName : varNames) {
 			if (!firstVar) {
-				out.print(", " + varName);
+				codeBeginning += ", " + varName;
 			} else {
-				out.print(varName);
+				codeBeginning += varName;
 				firstVar = false;
 			}
 		}
-		out.print(";\n");
+		codeBeginning += ";\n";
 	}
-	out.print(code);
-	out.print("    return 0;\n}\n");
-	out.close();
+	code += "    return 0;\n}\n";
+	code = codeBeginning + code;
 }
 
-void addCode(String s) {
+private void addCode(String s) {
 	if (s.length() == 0)
 		return;
 	if (s.charAt(0) == '}')
@@ -58,6 +50,10 @@ void addCode(String s) {
 	if (s.length() > 1 && s.charAt(s.length() - 2) == '{')
 		++codeOffset;
 	newLine = (s.charAt(s.length() - 1) == '\n');
+}
+
+public String getCode() {
+	return code;
 }
 }
 
