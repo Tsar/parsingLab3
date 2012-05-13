@@ -1,6 +1,8 @@
 grammar Prefix;
 
 @header {
+import java.util.Set;
+import java.util.HashSet;
 import java.io.PrintWriter;
 }
 
@@ -9,6 +11,7 @@ import java.io.PrintWriter;
 	String code;
 	int codeOffset;
 	boolean newLine;
+	Set<String> varNames;
 
 	void init() {
 		try{
@@ -20,15 +23,31 @@ import java.io.PrintWriter;
 		codeOffset = 1;
 		code = "";
 		newLine = true;
+		varNames = new HashSet<String>();
 	}
 	
 	void deinit() {
+		if (!varNames.isEmpty()) {
+			out.print("    int ");
+			boolean firstVar = true;
+			for (String varName : varNames) {
+				if (!firstVar) {
+					out.print(", " + varName);
+				} else {
+					out.print(varName);
+					firstVar = false;
+				}
+			}
+			out.print(";\n");
+		}
 		out.print(code);
 		out.print("    return 0;\n}\n");
 		out.close();
 	}
 
 	void addCode(String s) {
+		if (s.length() == 0)
+			return;
 		if (s.charAt(0) == '}')
 			--codeOffset;
 		if (newLine) {
@@ -52,7 +71,7 @@ expr	:	IF_OPERATOR {addCode("if ");} B bool_expr {addCode(" {\n");} B expr+
 		(ELSE_OPERATOR {addCode("} else {\n");} B expr+)?
 		ENDIF_OPERATOR {addCode("}\n");} B?
 	|	PRINT_OPERATOR {addCode("std::cout << ");} B arithm_expr {addCode(";\n");} B?
-	|	EQ_OPERATOR B? VARIABLE {addCode($VARIABLE.text + " = ");} B arithm_expr {addCode(";\n");} B?;
+	|	EQ_OPERATOR B? VARIABLE {varNames.add($VARIABLE.text); addCode($VARIABLE.text + " = ");} B arithm_expr {addCode(";\n");} B?;
 
 bool_expr
 	:	BOOL_BIN_OPERATOR {addCode("(");} B? arithm_expr {addCode(" " + $BOOL_BIN_OPERATOR.text + " ");} B arithm_expr {addCode(")");}
@@ -61,7 +80,7 @@ bool_expr
 arithm_expr
 	:	ARITHM_BIN_OPERATOR {addCode("(");} B? arithm_expr {addCode(" " + $ARITHM_BIN_OPERATOR.text + " ");} B arithm_expr {addCode(")");}
 	|	NUMBER {addCode($NUMBER.text);}
-	|	VARIABLE {addCode($VARIABLE.text);};
+	|	VARIABLE {varNames.add($VARIABLE.text); addCode($VARIABLE.text);};
 
 ARITHM_BIN_OPERATOR
 	:	'+'
