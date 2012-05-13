@@ -68,7 +68,8 @@ expr	:	IF_OPERATOR {addCode("if ");} B bool_expr {addCode(" {\n");} B expr+
 
 bool_expr
 	:	BOOL_BIN_OPERATOR {addCode("(");} B? arithm_expr {addCode(" " + $BOOL_BIN_OPERATOR.text + " ");} B arithm_expr {addCode(")");}
-	|	NOT_OPERATOR {addCode("(!");} B? bool_expr {addCode(")");};
+	|	NOT_OPERATOR {addCode("(!");} B? bool_expr {addCode(")");}
+	|	BOOL_BIN_OPERATOR_ON_BOOLS {addCode("(");} B? bool_expr {addCode(" " + $BOOL_BIN_OPERATOR_ON_BOOLS.text + " ");} B bool_expr {addCode(")");};
 
 arithm_expr
 	:	ARITHM_BIN_OPERATOR {addCode("(");} B? arithm_expr {addCode(" " + $ARITHM_BIN_OPERATOR.text + " ");} B arithm_expr {addCode(")");}
@@ -90,8 +91,12 @@ BOOL_BIN_OPERATOR
 	|	'<='
 	|	'>'
 	|	'<'
-	|	'||'
-	|	'&&';
+	|	'=='
+	|	'!=';
+
+BOOL_BIN_OPERATOR_ON_BOOLS
+	:	'&&'
+	|	'||';
 
 NOT_OPERATOR
 	:	'!';
