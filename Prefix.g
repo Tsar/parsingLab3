@@ -24,18 +24,21 @@ import java.io.PrintWriter;
 
 s	:	{init();} B? expr* {deinit();};
 
-expr	:	IF_OPERATOR {out.print($IF_OPERATOR.text + " (");} B bool_expr {out.print(") {\n");} B expr+ (ELIF_OPERATOR B bool_expr B expr+)* (ELSE_OPERATOR B expr+)? ENDIF_OPERATOR {out.print("}\n");} B?
-	|	PRINT_OPERATOR B arithm_expr B?
-	|	EQ_OPERATOR B? VARIABLE B arithm_expr B?;
+expr	:	IF_OPERATOR {out.print("if ");} B bool_expr {out.print(" {\n");} B expr+
+		(ELIF_OPERATOR {out.print("} else if ");} B bool_expr {out.print(" {\n");} B expr+)*
+		(ELSE_OPERATOR {out.print("} else {\n");} B expr+)?
+		ENDIF_OPERATOR {out.print("}\n");} B?
+	|	PRINT_OPERATOR {out.print("std::cout << ");} B arithm_expr {out.print(";\n");} B?
+	|	EQ_OPERATOR B? VARIABLE {out.print($VARIABLE.text + " = ");} B arithm_expr {out.print(";\n");} B?;
 
 bool_expr
-	:	BOOL_BIN_OPERATOR B? arithm_expr B arithm_expr
-	|	NOT_OPERATOR B? bool_expr;
+	:	BOOL_BIN_OPERATOR {out.print("(");} B? arithm_expr {out.print(" " + $BOOL_BIN_OPERATOR.text + " ");} B arithm_expr {out.print(")");}
+	|	NOT_OPERATOR {out.print("(!");} B? bool_expr {out.print(")");};
 
 arithm_expr
-	:	ARITHM_BIN_OPERATOR B? arithm_expr B arithm_expr
-	|	NUMBER
-	|	VARIABLE;
+	:	ARITHM_BIN_OPERATOR {out.print("(");} B? arithm_expr {out.print(" " + $ARITHM_BIN_OPERATOR.text + " ");} B arithm_expr {out.print(")");}
+	|	NUMBER {out.print($NUMBER.text);}
+	|	VARIABLE {out.print($VARIABLE.text);};
 
 ARITHM_BIN_OPERATOR
 	:	'+'
