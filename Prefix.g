@@ -70,7 +70,7 @@ expr	:	IF_OPERATOR {addCode("if ");} B bool_expr {addCode(" {\n");} B expr+
 		(ELIF_OPERATOR {addCode("} else if ");} B bool_expr {addCode(" {\n");} B expr+)*
 		(ELSE_OPERATOR {addCode("} else {\n");} B expr+)?
 		ENDIF_OPERATOR {addCode("}\n");} B?
-	|	PRINT_OPERATOR {addCode("std::cout << ");} B arithm_expr {addCode(";\n");} B?
+	|	PRINT_OPERATOR {addCode("std::cout << ");} B arithm_expr {addCode(" << std::endl;\n");} B?
 	|	EQ_OPERATOR B? VARIABLE {varNames.add($VARIABLE.text); addCode($VARIABLE.text + " = ");} B arithm_expr {addCode(";\n");} B?;
 
 bool_expr
