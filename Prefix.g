@@ -9,7 +9,7 @@ import java.io.PrintWriter;
 
 	void init() {
 		try{
-			out = new PrintWriter("test01_res.txt");
+			out = new PrintWriter("output.cpp");
 			out.print("#include <iostream>\n\n");
 			out.print("int main() {\n");
 		} catch (Exception e) {
