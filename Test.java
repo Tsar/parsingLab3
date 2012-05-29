@@ -6,6 +6,7 @@ import java.io.PrintWriter;
 public class Test {
     public static void main(String[] args) {
         for (String testName : args) {
+            System.out.printf("Running parser on test '%s'...\n", testName);
             try {
                 ANTLRInputStream input = new ANTLRInputStream(new FileInputStream(new File("tests/" + testName + ".txt")));
                 PrefixLexer lexer = new PrefixLexer(input);
